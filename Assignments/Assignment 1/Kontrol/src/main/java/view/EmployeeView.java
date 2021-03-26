@@ -3,9 +3,18 @@ package view;
 import javax.swing.*;
 import java.util.Scanner;
 
-public class EmployeeView {
+public class EmployeeView extends JFrame{
+    private boolean visible = false;
     private Scanner sc = new Scanner(System.in);
     public EmployeeView() {
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
     }
 
     public void print_menu() {

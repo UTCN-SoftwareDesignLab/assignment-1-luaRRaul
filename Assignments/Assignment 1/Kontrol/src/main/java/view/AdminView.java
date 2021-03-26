@@ -1,10 +1,20 @@
 package view;
 
+import javax.swing.*;
 import java.util.Scanner;
 
-public class AdminView {
+public class AdminView extends JFrame {
+    private boolean visible = false;
     private Scanner sc = new Scanner(System.in);
     public AdminView() {
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
     }
 
     public void print_menu() {

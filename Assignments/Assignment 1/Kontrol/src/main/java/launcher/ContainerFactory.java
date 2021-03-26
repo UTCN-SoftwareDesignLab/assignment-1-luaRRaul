@@ -1,5 +1,7 @@
 package launcher;
 
+import controller.AdminController;
+import controller.EmployeeController;
 import controller.MainController;
 import database.DBConnectionFactory;
 import model.SessionManager;
@@ -28,6 +30,8 @@ public class ContainerFactory {
     private final EmployeeView employeeView;
 
     private final MainController mainController;
+    private final AdminController adminController;
+    private final EmployeeController employeeController;
 
     private final UserRepository userRepository;
 
@@ -60,7 +64,12 @@ public class ContainerFactory {
         this.employeeView = new EmployeeView();
         this.sessionManager =  new SessionManager();
         this.accountService = new AccountServiceImpl(this.accountRepository, this.userRepository);
-        this.mainController = new MainController(this.mainView, this.adminView, this.employeeView, this.authenticationService, this.userService, this.accountService, this.sessionManager);
+        this.mainController = new MainController(this.sessionManager, this.mainView, this.adminView, this.employeeView, this.authenticationService);
+        mainController.start();
+        this.adminController = new AdminController(this.sessionManager, this.mainView, this.adminView, this.authenticationService, this.userService);
+        adminController.start();
+        this.employeeController = new EmployeeController(this.sessionManager, this.mainView, this.employeeView, this.authenticationService, this.userService, this.accountService);
+        employeeController.start();
 
     }
 

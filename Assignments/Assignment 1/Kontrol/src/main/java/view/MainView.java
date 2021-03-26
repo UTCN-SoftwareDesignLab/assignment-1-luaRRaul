@@ -3,9 +3,18 @@ package view;
 import javax.swing.*;
 import java.util.Scanner;
 
-public class MainView extends JFrame {
+public class MainView extends JFrame{
+    private boolean visible = true;
     private Scanner sc = new Scanner(System.in);
     public MainView() {
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
     }
 
     public void print_menu() {
