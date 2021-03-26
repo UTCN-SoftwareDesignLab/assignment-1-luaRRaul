@@ -33,6 +33,7 @@ public class EmployeeView extends JFrame{
         System.out.println("(2) View client information");
         System.out.println("(3) Update client information");
         System.out.println("(0) Go back");
+        System.out.print("Option:");
     }
 
     public void print_client_account_ops_menu(){
@@ -41,7 +42,7 @@ public class EmployeeView extends JFrame{
         System.out.println("(2) View account information");
         System.out.println("(3) Update account information");
         System.out.println("(0) Go back");
-
+        System.out.print("Option:");
     }
 
     public String getUsername() {
