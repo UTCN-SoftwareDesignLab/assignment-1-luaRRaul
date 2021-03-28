@@ -1,23 +1,13 @@
 package view;
 
+import model.User;
+
 import javax.swing.*;
+import java.util.List;
 import java.util.Scanner;
 
-public class AdminView extends JFrame {
-    private boolean visible = false;
-    private Scanner sc = new Scanner(System.in);
-    public AdminView() {
-    }
-
-    public boolean isVisible() {
-        return visible;
-    }
-
-    public void setVisible(boolean visible) {
-        this.visible = visible;
-    }
-
-    public void print_menu() {
+public class AdminView extends ConsoleView {
+    public void printMenu() {
         System.out.println("-------------------Admin menu");
         System.out.println("(1) Create employee");
         System.out.println("(2) View employee information");
@@ -29,10 +19,11 @@ public class AdminView extends JFrame {
 
     public int getEmployeeNumber() {
         System.out.print("\nemployee number: ");
-        return sc.nextInt();
+        return Integer.parseInt(sc.nextLine());
     }
 
     public String getUsername() {
+        sc.nextLine();
         System.out.print("\nusername: ");
         return sc.nextLine();
     }
@@ -42,4 +33,30 @@ public class AdminView extends JFrame {
         return sc.nextLine();
     }
 
+    public int getOption() {
+        return sc.nextInt();
+    }
+
+    public User getSelectedUser(List<User> employees) {
+        System.out.println("Employee list:");
+        for (User u : employees) {
+            System.out.print("(" + employees.indexOf(u) + ") ");
+            System.out.println(u.getUsername());
+        }
+        System.out.print("Select employee:");
+        int selection = getOption();
+        if (selection>=0 & selection<employees.size())
+            return employees.get(selection);
+        else
+            System.out.println("Employee index not good!");
+            return null; //something went wrong
+    }
+
+    public void printEmployee(User employee) {
+        System.out.println(employee.toString());
+    }
+
+    public void printMessage(String message) {
+        System.out.println("\n"+message+"\n");
+    }
 }

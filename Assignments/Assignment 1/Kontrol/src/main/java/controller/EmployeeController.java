@@ -10,12 +10,7 @@ import service.user.UserService;
 import view.EmployeeView;
 import view.MainView;
 
-import javax.swing.*;
-import java.util.List;
-import java.util.Scanner;
-
 import static database.Constants.Roles.CUSTOMER;
-import static database.Constants.Roles.EMPLOYEE;
 
 public class EmployeeController extends Thread{
     private final SessionManager sessionManager;
@@ -25,10 +20,6 @@ public class EmployeeController extends Thread{
     private final UserService userService;
     private final AccountService accountService;
 
-    private Scanner sc = new Scanner(System.in);
-
-    private int option;
-
     public EmployeeController(SessionManager sessionManager, MainView mainView, EmployeeView employeeView, AuthenticationService authenticationService, UserService userService, AccountService accountService) {
         this.sessionManager = sessionManager;
         this.mainView = mainView;
@@ -37,11 +28,15 @@ public class EmployeeController extends Thread{
         this.authenticationService = authenticationService;
         this.accountService = accountService;
     }
+
     @Override
     public void run() {
         while (true) {
             try {
-                CommandListener();
+                if(employeeView.isVisible()) {
+                    employeeView.printMenu();
+                    commandListener(employeeView.getOption());
+                }
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -49,107 +44,78 @@ public class EmployeeController extends Thread{
         }
     }
 
-    private void CommandListener(){
-        if(employeeView.isVisible()) {
-            employeeView.print_menu();
-            this.option = sc.nextInt();
-            switch (this.option) {
+    private void commandListener(int option){
+            switch (option) {
                 case 0:
                     Logout();
                     break;
                 case 1:
-                    ClientOperationMenu();
+                    clientOperationMenu(employeeView.getOption());
                     break;
                 case 2:
-                    ClientAccountMenu();
+                    clientAccountMenu(employeeView.getOption());
                     break;
-            }
         }
     }
 
-    private void ClientOperationMenu(){
-        User client = new User();
-        employeeView.print_client_ops_menu();
-        this.option = sc.nextInt();
-        switch (this.option) {
+    private void clientOperationMenu(int option){
+        employeeView.printClientOpsMenu();
+        switch (option) {
             case 0:
                 break;
             case 1:
                 addClient();
                 break;
             case 2:
-                client = selectUser();
-                viewClientInfo(client);
+                viewClientInfo(selectUser());
                 break;
             case 3:
-                client = selectUser();
-                updateClientInfo(client);
+                updateClientInfo(selectUser());
                 break;
         }
     }
 
-    private void ClientAccountMenu(){
-        User client = new User();
-        employeeView.print_client_account_ops_menu();
-        this.option = sc.nextInt();
-        switch (this.option) {
+    private void clientAccountMenu(int option){
+        employeeView.printClientAccountOpsMenu();
+        switch (option) {
             case 0:
                 break;
             case 1:
-                client = selectUser();
-                createClientAccount(client);
+                createClientAccount(selectUser());
                 break;
             case 2:
-                client = selectUser();
-                viewClientAccounts(client);
+                viewClientAccounts(selectUser());
                 break;
             case 3:
-                client = selectUser();
-                Account account = selectClientAccount(client);
-                System.out.print("New balance: ");
-                int newBalance = sc.nextInt();
-                updateClientAccountBalance(account, String.valueOf(newBalance));
+                updateClientAccountBalance(selectClientAccount(selectUser()), employeeView.getNewBalance());
                 break;
             case 4:
-                System.out.println("Please select the sender account:");
-                client = selectUser();
-                Account senderAcc = selectClientAccount(client);
-                System.out.println("Please select the receiver account:");
-                User receiverClient = selectUser();
-                Account receiverAcc = selectClientAccount(receiverClient);
-                System.out.print("Select the ammount:");
-                int ammount = sc.nextInt();
-                sendMoney(senderAcc, receiverAcc, String.valueOf(ammount));
+                sendMoney(selectClientAccount(selectUser()), selectClientAccount(selectUser()), employeeView.getAmmount());
+        }
+    }
+
+    private void viewClientInfo(User client) {
+        if (this.sessionManager.isEmployee()) {
+            employeeView.printClient(client);
         }
     }
 
     private void addClient() {
-        if (this.sessionManager.getUser().getRoles().get(0).getRole().equals(EMPLOYEE)) {
+        if (this.sessionManager.isEmployee()) {
             String username = employeeView.getUsername();
             String password = employeeView.getPassword();
             Notification<Boolean> registerNotification;
             registerNotification = authenticationService.register(username, password, CUSTOMER);
-
             if (registerNotification.hasErrors()) {
-                JOptionPane.showMessageDialog(this.employeeView.getContentPane(), registerNotification.getFormattedErrors());
+                employeeView.printMessage(registerNotification.getFormattedErrors());
             } else {
                 if (!registerNotification.getResult()) {
-                    JOptionPane.showMessageDialog(this.employeeView.getContentPane(), "Something went wrong, please try again later.");
+                    employeeView.printMessage("Something went wrong, please try again later.");
                 } else {
-                    JOptionPane.showMessageDialog(this.employeeView.getContentPane(), "You have successfully created a new customer account");
+                    employeeView.printMessage("You have successfully created a new customer account");
                 }
             }
-
         }
-
-    }
-
-    private void viewClientInfo(User client) {
-        //System.out.println(this.sessionManager.getUser().getRoles().get(0).getRole());
-        if (this.sessionManager.getUser().getRoles().get(0).getRole().equals(EMPLOYEE)) {
-            System.out.println(client.toString());
-        }
-
     }
 
     private void updateClientInfo(User client) {
@@ -157,65 +123,46 @@ public class EmployeeController extends Thread{
     }
 
     private void createClientAccount(User client) {
-        if (this.sessionManager.getUser().getRoles().get(0).getRole().equals(EMPLOYEE)) {
+        if (this.sessionManager.isEmployee()) {
             String iban = employeeView.getIban();
             String currency = employeeView.getCurrency();
             Notification<Boolean> registerNotification;
             registerNotification = accountService.createAccount(iban, currency, client);
-
             if (registerNotification.hasErrors()) {
-                JOptionPane.showMessageDialog(mainView.getContentPane(), registerNotification.getFormattedErrors());
+                employeeView.printMessage(registerNotification.getFormattedErrors());
             } else {
                 if (!registerNotification.getResult()) {
-                    JOptionPane.showMessageDialog(mainView.getContentPane(), "Something went wrong, please try again later.");
+                    employeeView.printMessage("Something went wrong, please try again later.");
                 } else {
-                    JOptionPane.showMessageDialog(mainView.getContentPane(), "You have successfully created the account");
+                    employeeView.printMessage("You have successfully created the account");
                 }
             }
-
         }
-
     }
 
     private void viewClientAccounts(User client) {
-        if (this.sessionManager.getUser().getRoles().get(0).getRole().equals(EMPLOYEE)) {
-            List<Account> accounts = accountService.findAccountsForUser(client);
-            for (Account account : accounts){
-                System.out.print("(" + accounts.indexOf(account) + ") ");
-                System.out.println(account.toString());
-            }
+        if (this.sessionManager.isEmployee()) {
+            employeeView.printClientAccounts(accountService.findAccountsForUser(client));
         }
-
     }
 
     private Account selectClientAccount(User client){
-        if (this.sessionManager.getUser().getRoles().get(0).getRole().equals(EMPLOYEE)) {
-            int selection=-1;
-            List<Account> accounts = accountService.findAccountsForUser(client);
-            for (Account account : accounts){
-                System.out.print("(" + accounts.indexOf(account) + ") ");
-                System.out.println(account.toString());
-            }
-            System.out.print("Select account:");
-            selection=sc.nextInt();
-            if (selection>=0 & selection<accounts.size())
-                return accounts.get(selection);
+        if (this.sessionManager.isEmployee()) {
+            return employeeView.getSelectedAccount(accountService.findAccountsForUser(client));
         }
         return null;
     }
 
     private void updateClientAccountBalance(Account account, String balance) {
-        if (this.sessionManager.getUser().getRoles().get(0).getRole().equals(EMPLOYEE)) {
+        if (sessionManager.isEmployee()) {
             accountService.updateBalance(account, balance);
         }
-
     }
 
     private void sendMoney(Account sender, Account receiver, String ammount){
-        if (this.sessionManager.getUser().getRoles().get(0).getRole().equals(EMPLOYEE)) {
+        if (sessionManager.isEmployee()) {
             accountService.sendMoney(sender, receiver, ammount);
         }
-
     }
 
     private void deleteClientAccount() {
@@ -223,26 +170,14 @@ public class EmployeeController extends Thread{
     }
 
     private void transferMoney() {
-        if (this.sessionManager.getUser().getRoles().get(0).getRole().equals(EMPLOYEE)) {
+        if (sessionManager.isEmployee()) {
 
         }
-
     }
 
     private User selectUser() {
-        int selection=-1;
-        //System.out.println(this.sessionManager.getUser().getRoles().get(0).getRole());
         if (this.sessionManager.isEmployee()) {
-            List<User> customers = userService.findAllCustomers();
-            System.out.println("Customer list:");
-            for (User u : customers) {
-                System.out.print("(" + customers.indexOf(u) + ") ");
-                System.out.println(u.getUsername());
-            }
-            System.out.print("Select client:");
-            selection=sc.nextInt();
-            if (selection>=0 & selection<customers.size())
-                return customers.get(selection);
+            return employeeView.getSelectedUser(userService.findAllEmployees());
         }
         return null;
     }

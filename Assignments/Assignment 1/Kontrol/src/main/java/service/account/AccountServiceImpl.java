@@ -51,8 +51,8 @@ public class AccountServiceImpl implements AccountService{
         boolean validBalance = accountValidator.validateBalance(ammount);
         boolean validNewBalance = accountValidator.validateBalance(String.valueOf(Integer.parseInt(sender.getSold())-Integer.parseInt(ammount)));
         if(validBalance & validNewBalance) {
-            sendMoneyNotif.setResult(accountRepository.updateSoldById(sender.getId(), String.valueOf(Integer.parseInt(sender.getSold())-Integer.parseInt(ammount))));
-            sendMoneyNotif.setResult(accountRepository.updateSoldById(receiver.getId(), String.valueOf(Integer.parseInt(sender.getSold())+Integer.parseInt(ammount))));
+            sendMoneyNotif.setResult(accountRepository.updateBalance(sender, String.valueOf(Integer.parseInt(sender.getSold())-Integer.parseInt(ammount))));
+            sendMoneyNotif.setResult(accountRepository.updateBalance(receiver, String.valueOf(Integer.parseInt(sender.getSold())+Integer.parseInt(ammount))));
         }else {
             accountValidator.getErrors().forEach(sendMoneyNotif::addError);
             sendMoneyNotif.setResult(Boolean.FALSE);
@@ -67,7 +67,7 @@ public class AccountServiceImpl implements AccountService{
         AccountValidator accountValidator = new AccountValidator(account);
         boolean validBalance = accountValidator.validateBalance(balance);
         if(validBalance) {
-            updateBalanceNotif.setResult(accountRepository.updateSoldById(account.getId(), balance));
+            updateBalanceNotif.setResult(accountRepository.updateBalance(account, balance));
         }else {
             accountValidator.getErrors().forEach(updateBalanceNotif::addError);
             updateBalanceNotif.setResult(Boolean.FALSE);

@@ -10,7 +10,7 @@ public interface AccountRepository {
 
     boolean save(Account account, long user_id);
 
-    boolean updateSoldById(long account_id, String sold);
+    boolean updateBalance(Account account, String sold);
 
     void removeAll();
 }

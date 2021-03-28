@@ -76,12 +76,12 @@ public class AccountRepositoryMySQL implements AccountRepository {
     }
 
     @Override
-    public boolean updateSoldById(long account_id, String sold) {
+    public boolean updateBalance(Account account, String sold) {
         try {
             PreparedStatement updateAccountStatement = connection
                     .prepareStatement("UPDATE "+ACCOUNT+" SET sold = ?  WHERE id = ?", Statement.RETURN_GENERATED_KEYS);
             updateAccountStatement.setString(1,sold);
-            updateAccountStatement.setLong(2,account_id);
+            updateAccountStatement.setLong(2,account.getId());
             updateAccountStatement.executeUpdate();
 
 

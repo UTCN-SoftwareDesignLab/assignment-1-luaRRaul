@@ -1,23 +1,14 @@
 package view;
 
+import model.Account;
+import model.User;
+
 import javax.swing.*;
+import java.util.List;
 import java.util.Scanner;
 
-public class EmployeeView extends JFrame{
-    private boolean visible = false;
-    private Scanner sc = new Scanner(System.in);
-    public EmployeeView() {
-    }
-
-    public boolean isVisible() {
-        return visible;
-    }
-
-    public void setVisible(boolean visible) {
-        this.visible = visible;
-    }
-
-    public void print_menu() {
+public class EmployeeView extends ConsoleView{
+    public void printMenu() {
         System.out.println("-------------------Employee menu");
         System.out.println("(1) Client operations");
         System.out.println("(2) Client account operations");
@@ -27,7 +18,7 @@ public class EmployeeView extends JFrame{
         System.out.print("Option:");
     }
 
-    public void print_client_ops_menu(){
+    public void printClientOpsMenu(){
         System.out.println("------------Client operations:");
         System.out.println("(1) Add client");
         System.out.println("(2) View client information");
@@ -36,7 +27,7 @@ public class EmployeeView extends JFrame{
         System.out.print("Option:");
     }
 
-    public void print_client_account_ops_menu(){
+    public void printClientAccountOpsMenu(){
         System.out.println("------------Account operations:");
         System.out.println("(1) Add account");
         System.out.println("(2) View account information");
@@ -46,6 +37,7 @@ public class EmployeeView extends JFrame{
     }
 
     public String getUsername() {
+        sc.nextLine();
         System.out.print("\nusername: ");
         return sc.nextLine();
     }
@@ -64,4 +56,60 @@ public class EmployeeView extends JFrame{
         return sc.nextLine();
     }
 
+    public int getOption() {
+        return sc.nextInt();
+    }
+
+    public String getAmmount(){
+        return sc.nextLine();
+    }
+
+    public void printMessage(String message){
+        System.out.println("\n"+message+"\n");
+    }
+
+    public User getSelectedUser(List<User> clients) {
+        System.out.println("Client list:");
+        for (User u : clients) {
+            System.out.print("(" + clients.indexOf(u) + ") ");
+            System.out.println(u.getUsername());
+        }
+        System.out.print("Select client:");
+        int selection= getOption();
+        if (selection>=0 & selection<clients.size())
+            return clients.get(selection);
+        else
+            System.out.println("Customer index not good!");
+        return null; //something went wrong
+    }
+
+    public Account getSelectedAccount(List<Account> accounts) {
+        for (Account account : accounts){
+            System.out.print("(" + accounts.indexOf(account) + ") ");
+            System.out.println(account.toString());
+        }
+        System.out.print("Select account:");
+        int selection=getOption();
+        if (selection>=0 & selection<accounts.size())
+            return accounts.get(selection);
+        else
+            System.out.println("Account index out of bounds!");
+            return null;
+    }
+
+    public void printClient(User client) {
+        System.out.println(client.toString());
+    }
+
+    public String getNewBalance() {
+        System.out.print("New balance: ");
+        return sc.nextLine();
+    }
+
+    public void printClientAccounts(List<Account> accounts) {
+        for (Account account : accounts){
+            System.out.println("(" + accounts.indexOf(account) + ") ");
+            System.out.println(account.toString());
+        }
+    }
 }
