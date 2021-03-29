@@ -1,5 +1,6 @@
 package service.account;
 
+import dto.UserDTO;
 import model.Account;
 import model.User;
 import model.builder.AccountBuilder;
@@ -20,7 +21,7 @@ public class AccountServiceImpl implements AccountService{
     }
 
     @Override
-    public Notification<Boolean> createAccount(String iban, String currency, User user) {
+    public Notification<Boolean> createAccount(String iban, String currency, UserDTO user) {
         Account account = new AccountBuilder()
                 .setUserId(user.getId())
                 .setIban(iban)
@@ -40,7 +41,7 @@ public class AccountServiceImpl implements AccountService{
     }
 
     @Override
-    public List<Account> findAccountsForUser(User user) {
+    public List<Account> findAccountsForUser(UserDTO user) {
         return accountRepository.findByUserId(user.getId());
     }
 

@@ -1,5 +1,6 @@
 package service.user;
 
+import dto.UserDTO;
 import model.Role;
 import model.User;
 import model.validation.Notification;
@@ -9,9 +10,9 @@ import model.validation.Notification;
  */
 public interface AuthenticationService {
 
-    Notification<Boolean> register(String username, String password, String role);
+    Notification<Boolean> register(UserDTO userDTO);
 
-    Notification<User> login(String username, String password);
+    Notification<User> login(UserDTO userDTO);
 
     boolean logout(User user);
 

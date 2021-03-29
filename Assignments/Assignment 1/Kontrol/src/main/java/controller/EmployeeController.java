@@ -1,14 +1,19 @@
 package controller;
 
+import dto.UserDTO;
+import dto.builder.UserDTOBuilder;
 import model.Account;
 import model.SessionManager;
 import model.User;
 import model.validation.Notification;
 import service.account.AccountService;
+import service.rightsRoles.RightsRolesService;
 import service.user.AuthenticationService;
 import service.user.UserService;
 import view.EmployeeView;
 import view.MainView;
+
+import java.util.Collections;
 
 import static database.Constants.Roles.CUSTOMER;
 
@@ -19,14 +24,16 @@ public class EmployeeController extends Thread{
     private final AuthenticationService authenticationService;
     private final UserService userService;
     private final AccountService accountService;
+    private final RightsRolesService rightsRolesService;
 
-    public EmployeeController(SessionManager sessionManager, MainView mainView, EmployeeView employeeView, AuthenticationService authenticationService, UserService userService, AccountService accountService) {
+    public EmployeeController(SessionManager sessionManager, MainView mainView, EmployeeView employeeView, AuthenticationService authenticationService, UserService userService, AccountService accountService, RightsRolesService rightsRolesService) {
         this.sessionManager = sessionManager;
         this.mainView = mainView;
         this.employeeView = employeeView;
         this.userService = userService;
         this.authenticationService = authenticationService;
         this.accountService = accountService;
+        this.rightsRolesService = rightsRolesService;
     }
 
     @Override
@@ -64,7 +71,7 @@ public class EmployeeController extends Thread{
             case 0:
                 break;
             case 1:
-                addClient();
+                addClient(employeeView.getUserDTO());
                 break;
             case 2:
                 viewClientInfo(selectUser());
@@ -94,18 +101,17 @@ public class EmployeeController extends Thread{
         }
     }
 
-    private void viewClientInfo(User client) {
+    private void viewClientInfo(UserDTO client) {
         if (this.sessionManager.isEmployee()) {
-            employeeView.printClient(client);
+            employeeView.printClient(new UserDTOBuilder().setUsername(client.getUsername()).setRoles(client.getRoles()).build());
         }
     }
 
-    private void addClient() {
+    private void addClient(UserDTO userDTO) {
         if (this.sessionManager.isEmployee()) {
-            String username = employeeView.getUsername();
-            String password = employeeView.getPassword();
+            userDTO.setRoles(Collections.singletonList(rightsRolesService.getRoleByTitle(CUSTOMER)));
             Notification<Boolean> registerNotification;
-            registerNotification = authenticationService.register(username, password, CUSTOMER);
+            registerNotification = authenticationService.register(userDTO);
             if (registerNotification.hasErrors()) {
                 employeeView.printMessage(registerNotification.getFormattedErrors());
             } else {
@@ -118,11 +124,11 @@ public class EmployeeController extends Thread{
         }
     }
 
-    private void updateClientInfo(User client) {
+    private void updateClientInfo(UserDTO client) {
 
     }
 
-    private void createClientAccount(User client) {
+    private void createClientAccount(UserDTO client) {
         if (this.sessionManager.isEmployee()) {
             String iban = employeeView.getIban();
             String currency = employeeView.getCurrency();
@@ -140,13 +146,13 @@ public class EmployeeController extends Thread{
         }
     }
 
-    private void viewClientAccounts(User client) {
+    private void viewClientAccounts(UserDTO client) {
         if (this.sessionManager.isEmployee()) {
             employeeView.printClientAccounts(accountService.findAccountsForUser(client));
         }
     }
 
-    private Account selectClientAccount(User client){
+    private Account selectClientAccount(UserDTO client){
         if (this.sessionManager.isEmployee()) {
             return employeeView.getSelectedAccount(accountService.findAccountsForUser(client));
         }
@@ -175,9 +181,9 @@ public class EmployeeController extends Thread{
         }
     }
 
-    private User selectUser() {
+    private UserDTO selectUser() {
         if (this.sessionManager.isEmployee()) {
-            return employeeView.getSelectedUser(userService.findAllEmployees());
+            return employeeView.getSelectedUser(userService.findAllCustomers());
         }
         return null;
     }

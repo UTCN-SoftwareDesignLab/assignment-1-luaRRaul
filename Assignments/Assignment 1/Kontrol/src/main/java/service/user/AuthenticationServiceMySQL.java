@@ -1,5 +1,6 @@
 package service.user;
 
+import dto.UserDTO;
 import model.Role;
 import model.User;
 import model.builder.UserBuilder;
@@ -20,20 +21,17 @@ import static database.Constants.Roles.ADMINISTRATOR;
 public class AuthenticationServiceMySQL implements AuthenticationService {
 
     private final UserRepository userRepository;
-    private final RightsRolesRepository rightsRolesRepository;
 
-    public AuthenticationServiceMySQL(UserRepository userRepository, RightsRolesRepository rightsRolesRepository) {
+    public AuthenticationServiceMySQL(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.rightsRolesRepository = rightsRolesRepository;
     }
 
     @Override
-    public Notification<Boolean> register(String username, String password, String role) {
-        Role customerRole = rightsRolesRepository.findRoleByTitle(role);
+    public Notification<Boolean> register(UserDTO userDTO) {
         User user = new UserBuilder()
-                .setUsername(username)
-                .setPassword(password)
-                .setRoles(Collections.singletonList(customerRole))
+                .setUsername(userDTO.getUsername())
+                .setPassword(userDTO.getPassword())
+                .setRoles(userDTO.getRoles())
                 .build();
 
         UserValidator userValidator = new UserValidator(user);
@@ -44,15 +42,15 @@ public class AuthenticationServiceMySQL implements AuthenticationService {
             userValidator.getErrors().forEach(userRegisterNotification::addError);
             userRegisterNotification.setResult(Boolean.FALSE);
         } else {
-            user.setPassword(encodePassword(password));
+            user.setPassword(encodePassword(userDTO.getPassword()));
             userRegisterNotification.setResult(userRepository.save(user));
         }
         return userRegisterNotification;
     }
 
     @Override
-    public Notification<User> login(String username, String password) {
-        return userRepository.findByUsernameAndPassword(username, encodePassword(password));
+    public Notification<User> login(UserDTO userDTO) {
+        return userRepository.findByUsernameAndPassword(userDTO.getUsername(), encodePassword(userDTO.getPassword()));
     }
 
     @Override

@@ -1,6 +1,6 @@
-package model;
+package dto;
 
-public class Account {
+public class AccountDTO {
     private long id;
     private long user_id;
     private String sold;
@@ -47,4 +47,12 @@ public class Account {
         this.currency = currency;
     }
 
+    @Override
+    public String toString() {
+        return "Account{" +
+                "sold='" + sold + '\'' +
+                ", iban='" + iban + '\'' +
+                ", currency='" + currency + '\'' +
+                '}';
+    }
 }

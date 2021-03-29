@@ -13,6 +13,8 @@ import repository.user.UserRepository;
 import repository.user.UserRepositoryMySQL;
 import service.account.AccountService;
 import service.account.AccountServiceImpl;
+import service.rightsRoles.RightsRolesService;
+import service.rightsRoles.RightsRolesServiceImpl;
 import service.user.AuthenticationService;
 import service.user.AuthenticationServiceMySQL;
 import service.user.UserService;
@@ -41,6 +43,7 @@ public class ContainerFactory {
     private final AuthenticationService authenticationService;
     private final UserService userService;
     private final AccountService accountService;
+    private final RightsRolesService rightsRolesService;
 
     private static ContainerFactory instance;
     private final SessionManager sessionManager;
@@ -57,18 +60,19 @@ public class ContainerFactory {
         this.rightsRolesRepository = new RightsRolesRepositoryMySQL(connection);
         this.userRepository= new UserRepositoryMySQL(connection, this.rightsRolesRepository);
         this.accountRepository = new AccountRepositoryMySQL(connection);
-        this.authenticationService = new AuthenticationServiceMySQL(this.userRepository, this.rightsRolesRepository);
+        this.authenticationService = new AuthenticationServiceMySQL(this.userRepository);
         this.userService = new UserServiceImpl(this.userRepository, this.rightsRolesRepository);
+        this.rightsRolesService = new RightsRolesServiceImpl(this.rightsRolesRepository);
         this.mainView = new MainView();
         this.adminView = new AdminView();
         this.employeeView = new EmployeeView();
         this.sessionManager =  new SessionManager();
         this.accountService = new AccountServiceImpl(this.accountRepository, this.userRepository);
-        this.mainController = new MainController(this.sessionManager, this.mainView, this.adminView, this.employeeView, this.authenticationService);
+        this.mainController = new MainController(this.sessionManager, this.mainView, this.adminView, this.employeeView, this.authenticationService, rightsRolesService);
         mainController.start();
-        this.adminController = new AdminController(this.sessionManager, this.mainView, this.adminView, this.authenticationService, this.userService);
+        this.adminController = new AdminController(this.sessionManager, this.mainView, this.adminView, this.authenticationService, this.userService, rightsRolesService);
         adminController.start();
-        this.employeeController = new EmployeeController(this.sessionManager, this.mainView, this.employeeView, this.authenticationService, this.userService, this.accountService);
+        this.employeeController = new EmployeeController(this.sessionManager, this.mainView, this.employeeView, this.authenticationService, this.userService, this.accountService, rightsRolesService);
         employeeController.start();
 
     }
@@ -119,6 +123,10 @@ public class ContainerFactory {
 
     public SessionManager getSessionManager() {
         return sessionManager;
+    }
+
+    public RightsRolesService getRightsRolesService() {
+        return rightsRolesService;
     }
 
     public UserRepository getUserRepositoryMySQL() {

@@ -1,12 +1,17 @@
 package controller;
 
+import dto.UserDTO;
+import dto.builder.UserDTOBuilder;
 import model.SessionManager;
 import model.User;
 import model.validation.Notification;
+import service.rightsRoles.RightsRolesService;
 import service.user.AuthenticationService;
 import service.user.UserService;
 import view.AdminView;
 import view.MainView;
+
+import java.util.Collections;
 
 import static database.Constants.Roles.EMPLOYEE;
 
@@ -16,13 +21,15 @@ public class AdminController extends Thread{
     private final AdminView adminView;
     private final AuthenticationService authenticationService;
     private final UserService userService;
+    private final RightsRolesService rightsRolesService;
 
-    public AdminController(SessionManager sessionManager, MainView mainView, AdminView adminView, AuthenticationService authenticationService, UserService userService) {
+    public AdminController(SessionManager sessionManager, MainView mainView, AdminView adminView, AuthenticationService authenticationService, UserService userService, RightsRolesService rightsRolesService) {
         this.sessionManager = sessionManager;
         this.mainView = mainView;
         this.adminView = adminView;
         this.authenticationService = authenticationService;
         this.userService = userService;
+        this.rightsRolesService = rightsRolesService;
     }
     @Override
     public void run() {
@@ -45,7 +52,7 @@ public class AdminController extends Thread{
                     Logout();
                     break;
                 case 1:
-                    registerEmployee();
+                    registerEmployee(adminView.getUserDTO());
                     break;
                 case 2:
                     viewEmployeeInfo();
@@ -56,12 +63,11 @@ public class AdminController extends Thread{
         }
     }
 
-    private void registerEmployee() {
+    private void registerEmployee(UserDTO userDTO) {
         if (this.sessionManager.isAdmin()) {
-            String username = adminView.getUsername();
-            String password = adminView.getPassword();
+            userDTO.setRoles(Collections.singletonList(rightsRolesService.getRoleByTitle(EMPLOYEE)));
             Notification<Boolean> registerNotification;
-            registerNotification = authenticationService.register(username, password, EMPLOYEE);
+            registerNotification = authenticationService.register(userDTO);
             if (registerNotification.hasErrors()) {
                 adminView.printMessage(registerNotification.getFormattedErrors());
             } else {
@@ -76,16 +82,16 @@ public class AdminController extends Thread{
 
     private void viewEmployeeInfo() {
         if (this.sessionManager.isAdmin()) {
-            adminView.printEmployee(selectUser());
+            adminView.printEmployee(new UserDTOBuilder().setUsername(this.sessionManager.getUser().getUsername()).setRoles(this.sessionManager.getUser().getRoles()).build());
         }
     }
 
-    private void updateEmployeeInfo(User employee){
+    private void updateEmployeeInfo(UserDTO employee){
         if (this.sessionManager.isAdmin()) {
         }
     }
 
-    private User selectUser() {
+    private UserDTO selectUser() {
         if(this.sessionManager.isAdmin()) {
             return adminView.getSelectedUser(userService.findAllEmployees());
         }

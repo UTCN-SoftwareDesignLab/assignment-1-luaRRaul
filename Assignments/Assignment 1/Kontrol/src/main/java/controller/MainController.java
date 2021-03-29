@@ -1,12 +1,17 @@
 package controller;
 
+import dto.UserDTO;
+import model.Role;
 import model.SessionManager;
 import model.User;
 import model.validation.Notification;
+import service.rightsRoles.RightsRolesService;
 import service.user.AuthenticationService;
 import view.AdminView;
 import view.EmployeeView;
 import view.MainView;
+
+import java.util.List;
 
 import static database.Constants.Roles.ADMINISTRATOR;
 import static database.Constants.Roles.EMPLOYEE;
@@ -17,15 +22,17 @@ public class MainController extends Thread{
     private final AdminView adminView;
     private final EmployeeView employeeView;
     private final AuthenticationService authenticationService;
+    private final RightsRolesService rightsRolesService;
 
     private boolean running = true;
 
-    public MainController(SessionManager sessionManager, MainView mainView, AdminView adminView, EmployeeView employeeView, AuthenticationService authenticationService) {
+    public MainController(SessionManager sessionManager, MainView mainView, AdminView adminView, EmployeeView employeeView, AuthenticationService authenticationService, RightsRolesService rightsRolesService) {
         this.sessionManager = sessionManager;
         this.mainView = mainView;
         this.adminView = adminView;
         this.employeeView = employeeView;
         this.authenticationService = authenticationService;
+        this.rightsRolesService = rightsRolesService;
         mainView.setVisible(true);
     }
 
@@ -47,13 +54,13 @@ public class MainController extends Thread{
     private void commandListener(int option){
             switch (option) {
                 case 1:
-                    loginButtonListener();
+                    loginButtonListener(mainView.getUserDTO());
                     break;
                 case 2:
-                    registerButtonListener(true);
+                    registerButtonListener(mainView.getUserDTO(), true);
                     break;
                 case 3:
-                    registerButtonListener(false);
+                    registerButtonListener(mainView.getUserDTO(), false);
                     break;
                 case 0:
                     this.running = false;
@@ -61,10 +68,8 @@ public class MainController extends Thread{
         }
     }
 
-    private void loginButtonListener() {
-        String username = mainView.getUsername();
-        String password = mainView.getPassword();
-        Notification<User> loginNotification = authenticationService.login(username, password);
+    private void loginButtonListener(UserDTO userDTO) {
+        Notification<User> loginNotification = authenticationService.login(userDTO);
         if (this.sessionManager.getUser() == null) {
             if (loginNotification.hasErrors()) {
                 mainView.printMessage(loginNotification.getFormattedErrors());
@@ -84,15 +89,14 @@ public class MainController extends Thread{
         }
     }
 
-    private void registerButtonListener(boolean registerAdmin) {
-        String username = mainView.getUsername();
-        String password = mainView.getPassword();
+    private void registerButtonListener(UserDTO userDTO, boolean registerAdmin) {
         Notification<Boolean> registerNotification;
         if (registerAdmin) {
-            registerNotification = authenticationService.register(username, password, ADMINISTRATOR);
+            userDTO.setRoles((List<Role>) rightsRolesService.getRoleByTitle(ADMINISTRATOR));
         } else {
-            registerNotification = authenticationService.register(username, password, EMPLOYEE);
+            userDTO.setRoles((List<Role>) rightsRolesService.getRoleByTitle(EMPLOYEE));
         }
+        registerNotification = authenticationService.register(userDTO);
         if (registerNotification.hasErrors()) {
             mainView.printMessage(registerNotification.getFormattedErrors());
         } else {

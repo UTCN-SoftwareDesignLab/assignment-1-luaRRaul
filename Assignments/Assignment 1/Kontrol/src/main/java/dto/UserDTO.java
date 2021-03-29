@@ -1,11 +1,13 @@
-package model;
+package dto;
+
+import model.Role;
 
 import java.util.List;
 
 /**
  * Created by Alex on 11/03/2017.
  */
-public class User {
+public class UserDTO {
 
     private Long id;
     private String username;
@@ -42,5 +44,13 @@ public class User {
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "username='" + username + '\'' +
+                ", roles=" + roles +
+                '}';
     }
 }

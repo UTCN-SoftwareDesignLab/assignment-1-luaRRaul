@@ -1,5 +1,8 @@
 package view;
 
+import dto.UserDTO;
+import dto.builder.UserDTOBuilder;
+
 public class MainView extends ConsoleView{
     public void printMenu() {
         System.out.println("-------------------Main menu");
@@ -19,6 +22,18 @@ public class MainView extends ConsoleView{
     public String getPassword() {
         System.out.print("\npassword: ");
         return sc.nextLine();
+    }
+
+    public UserDTO getUserDTO(){
+        sc.nextLine();
+        System.out.print("\nusername: ");
+        String username = sc.nextLine();
+        System.out.print("\npassword: ");
+        String password = sc.nextLine();
+        return new UserDTOBuilder()
+                .setUsername(username)
+                .setPassword(password)
+                .build();
     }
 
     public int getOption(){

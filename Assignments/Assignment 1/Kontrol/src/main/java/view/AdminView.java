@@ -1,5 +1,7 @@
 package view;
 
+import dto.UserDTO;
+import dto.builder.UserDTOBuilder;
 import model.User;
 
 import javax.swing.*;
@@ -22,24 +24,13 @@ public class AdminView extends ConsoleView {
         return Integer.parseInt(sc.nextLine());
     }
 
-    public String getUsername() {
-        sc.nextLine();
-        System.out.print("\nusername: ");
-        return sc.nextLine();
-    }
-
-    public String getPassword() {
-        System.out.print("\npassword: ");
-        return sc.nextLine();
-    }
-
     public int getOption() {
         return sc.nextInt();
     }
 
-    public User getSelectedUser(List<User> employees) {
+    public UserDTO getSelectedUser(List<UserDTO> employees) {
         System.out.println("Employee list:");
-        for (User u : employees) {
+        for (UserDTO u : employees) {
             System.out.print("(" + employees.indexOf(u) + ") ");
             System.out.println(u.getUsername());
         }
@@ -52,11 +43,23 @@ public class AdminView extends ConsoleView {
             return null; //something went wrong
     }
 
-    public void printEmployee(User employee) {
+    public void printEmployee(UserDTO employee) {
         System.out.println(employee.toString());
     }
 
     public void printMessage(String message) {
         System.out.println("\n"+message+"\n");
+    }
+
+    public UserDTO getUserDTO() {
+        sc.nextLine();
+        System.out.print("\nusername: ");
+        String username = sc.nextLine();
+        System.out.print("\npassword: ");
+        String password = sc.nextLine();
+        return new UserDTOBuilder()
+                .setUsername(username)
+                .setPassword(password)
+                .build();
     }
 }

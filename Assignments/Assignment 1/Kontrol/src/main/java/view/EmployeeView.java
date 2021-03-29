@@ -1,5 +1,7 @@
 package view;
 
+import dto.UserDTO;
+import dto.builder.UserDTOBuilder;
 import model.Account;
 import model.User;
 
@@ -68,9 +70,9 @@ public class EmployeeView extends ConsoleView{
         System.out.println("\n"+message+"\n");
     }
 
-    public User getSelectedUser(List<User> clients) {
+    public UserDTO getSelectedUser(List<UserDTO> clients) {
         System.out.println("Client list:");
-        for (User u : clients) {
+        for (UserDTO u : clients) {
             System.out.print("(" + clients.indexOf(u) + ") ");
             System.out.println(u.getUsername());
         }
@@ -97,7 +99,7 @@ public class EmployeeView extends ConsoleView{
             return null;
     }
 
-    public void printClient(User client) {
+    public void printClient(UserDTO client) {
         System.out.println(client.toString());
     }
 
@@ -111,5 +113,17 @@ public class EmployeeView extends ConsoleView{
             System.out.println("(" + accounts.indexOf(account) + ") ");
             System.out.println(account.toString());
         }
+    }
+
+    public UserDTO getUserDTO() {
+        sc.nextLine();
+        System.out.print("\nusername: ");
+        String username = sc.nextLine();
+        System.out.print("\npassword: ");
+        String password = sc.nextLine();
+        return new UserDTOBuilder()
+                .setUsername(username)
+                .setPassword(password)
+                .build();
     }
 }
