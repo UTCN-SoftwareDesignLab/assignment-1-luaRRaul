@@ -6,8 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class AccountValidator {
-    private static final String IBAN_VALIDATOR_REGEX = "[A-Z]{2}\\d{2} ?\\d{4} ?\\d{4} ?\\d{4} ?\\d{4} ?[\\d]{0,2}";
+import static model.validation.ValidatorConstants.IBAN_VALIDATOR_REGEX;
+
+public class AccountValidator extends Validator{
 
     public List<String> getErrors() {
         return errors;
@@ -39,8 +40,4 @@ public class AccountValidator {
         }
     }
 
-    public boolean validateBalance(String money) {
-        //regex for numbers
-        return true;
-    }
 }

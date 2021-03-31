@@ -1,37 +1,68 @@
 package repository.activity;
 
 import model.Activity;
+import model.builder.ActivityBuilder;
+import model.validation.Notification;
 import repository.security.RightsRolesRepository;
 
-import java.sql.Connection;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Date;
+
+import static database.Constants.Tables.ACTIVITY;
 
 public class ActivityRepositoryMySQL implements  ActivityRepository{
     private final Connection connection;
-    private final RightsRolesRepository rightsRolesRepository;
 
 
-    public ActivityRepositoryMySQL(Connection connection, RightsRolesRepository rightsRolesRepository) {
+    public ActivityRepositoryMySQL(Connection connection) {
         this.connection = connection;
-        this.rightsRolesRepository = rightsRolesRepository;
-    }
-    @Override
-    public List<Activity> findAll() {
-        return null;
     }
 
     @Override
-    public List<Activity> findByUserId(long id) {
+    public List<Activity> findByUserIdBetweenDates(long id, Date startDate, Date endDate) {
+        List<Activity> returnList = new ArrayList<>();
+        try {
+            PreparedStatement findByUserIdBetweenDates = connection
+                    .prepareStatement("SELECT * FROM "+ ACTIVITY +" WHERE executeDate <= ? AND executeDate >= ? AND user_id = ?", Statement.RETURN_GENERATED_KEYS);
+            findByUserIdBetweenDates.setDate(1, new java.sql.Date(endDate.getTime()));
+            findByUserIdBetweenDates.setDate(2, new java.sql.Date(startDate.getTime()));
+            findByUserIdBetweenDates.setLong(3, id);
+            ResultSet rs = findByUserIdBetweenDates.executeQuery();
+            while(rs.next()){
+                returnList.add(new ActivityBuilder()
+                        .setId(rs.getLong("id"))
+                        .setUserId(rs.getLong("user_id"))
+                        .setClientId(rs.getLong("client_id"))
+                        .setRightId(rs.getLong("right_id"))
+                        .setDate(rs.getDate("executeDate"))
+                        .build());
+
+            }
+            return returnList;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         return null;
     }
 
     @Override
     public boolean save(Activity activity) {
-        return false;
-    }
+        try {
+            PreparedStatement insertUserStatement = connection
+                    .prepareStatement("INSERT INTO "+ ACTIVITY +" values (null, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+            insertUserStatement.setLong(1, activity.getUser_id());
+            insertUserStatement.setLong(2, activity.getRight_id());
+            insertUserStatement.setLong(3, activity.getClient_id());
+            insertUserStatement.setDate(4, (java.sql.Date) activity.getExecution_date());
+            insertUserStatement.executeUpdate();
 
-    @Override
-    public void removeAll() {
-
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

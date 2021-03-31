@@ -58,6 +58,9 @@ public class AdminController extends Thread{
                     viewEmployeeInfo();
                     break;
                 case 3:
+                    deleteEmployee(selectUser());
+                    break;
+                case 4:
                     updateEmployeeInfo(selectUser());
                     break;
         }
@@ -88,6 +91,21 @@ public class AdminController extends Thread{
 
     private void updateEmployeeInfo(UserDTO employee){
         if (this.sessionManager.isAdmin()) {
+        }
+    }
+
+    private void deleteEmployee(UserDTO employee) {
+        if(this.sessionManager.isAdmin()){
+            Notification<Boolean> deleteClientNotification = userService.delete(employee);
+            if (deleteClientNotification.hasErrors()) {
+                adminView.printMessage(deleteClientNotification.getFormattedErrors());
+            } else {
+                if (!deleteClientNotification.getResult()) {
+                    adminView.printMessage("Something went wrong, please try again later.");
+                } else {
+                    adminView.printMessage("Client deleted successfully!");
+                }
+            }
         }
     }
 

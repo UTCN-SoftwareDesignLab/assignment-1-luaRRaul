@@ -34,4 +34,8 @@ public class ActivityBuilder {
         activity.setExecution_date(date);
         return this;
     }
+
+    public Activity build(){
+        return activity;
+    }
 }

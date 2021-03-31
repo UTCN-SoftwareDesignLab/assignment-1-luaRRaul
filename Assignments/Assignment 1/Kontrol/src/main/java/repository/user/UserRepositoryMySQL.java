@@ -1,5 +1,6 @@
 package repository.user;
 
+import dto.UserDTO;
 import model.User;
 import model.builder.UserBuilder;
 import model.validation.Notification;
@@ -26,10 +27,6 @@ public class UserRepositoryMySQL implements UserRepository {
         this.connection = connection;
         this.rightsRolesRepository = rightsRolesRepository;
     }
-    @Override
-    public List<User> findAll() {
-        return null;
-    }
 
     @Override
     public Notification<User> findByUsernameAndPassword(String username, String password) {
@@ -40,6 +37,7 @@ public class UserRepositoryMySQL implements UserRepository {
             ResultSet userResultSet = statement.executeQuery(fetchUserSql);
             if (userResultSet.next()) {
                 User user = new UserBuilder()
+                        .setId(userResultSet.getLong("id"))
                         .setUsername(userResultSet.getString("username"))
                         .setPassword(userResultSet.getString("password"))
                         .setRoles(rightsRolesRepository.findRolesForUser(userResultSet.getLong("id")))
@@ -55,6 +53,42 @@ public class UserRepositoryMySQL implements UserRepository {
             findByUsernameAndPasswordNotification.addError("Something is wrong with the Database");
         }
         return findByUsernameAndPasswordNotification;
+    }
+
+    @Override
+    public Notification<Boolean> changeUsername(User user, String newUsername) {
+        Notification<Boolean> changeUsernameNotif = new Notification<>();
+        try {
+            PreparedStatement updateAccountStatement = connection
+                    .prepareStatement("UPDATE "+USER+" SET username = ?  WHERE username = ?", Statement.RETURN_GENERATED_KEYS);
+            updateAccountStatement.setString(1,newUsername);
+            updateAccountStatement.setString(2,user.getUsername());
+            updateAccountStatement.executeUpdate();
+
+            changeUsernameNotif.setResult(true);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            changeUsernameNotif.addError("Something went wrong.");
+            changeUsernameNotif.setResult(false);
+        }
+        return changeUsernameNotif;
+    }
+
+    @Override
+    public Notification<Boolean> deleteByUsername(String username) {
+        Notification<Boolean> deleteUserNotif = new Notification<>();
+        try {
+            Statement statement = connection.createStatement();
+            String deleteEmployeeSQL = "DELETE from `" + EMPLOYEE + "` where `username`='" + username +
+                    "'";
+            statement.executeUpdate(deleteEmployeeSQL);
+            deleteUserNotif.setResult(true);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            deleteUserNotif.addError("Something went wrong.");
+            deleteUserNotif.setResult(false);
+        }
+        return deleteUserNotif;
     }
 
     @Override

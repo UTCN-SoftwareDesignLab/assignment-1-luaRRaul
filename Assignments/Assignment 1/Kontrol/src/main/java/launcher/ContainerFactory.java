@@ -7,12 +7,16 @@ import database.DBConnectionFactory;
 import model.SessionManager;
 import repository.account.AccountRepository;
 import repository.account.AccountRepositoryMySQL;
+import repository.activity.ActivityRepository;
+import repository.activity.ActivityRepositoryMySQL;
 import repository.security.RightsRolesRepository;
 import repository.security.RightsRolesRepositoryMySQL;
 import repository.user.UserRepository;
 import repository.user.UserRepositoryMySQL;
 import service.account.AccountService;
 import service.account.AccountServiceImpl;
+import service.activity.ActivityService;
+import service.activity.ActivityServiceImpl;
 import service.rightsRoles.RightsRolesService;
 import service.rightsRoles.RightsRolesServiceImpl;
 import service.user.AuthenticationService;
@@ -39,11 +43,13 @@ public class ContainerFactory {
 
     private final RightsRolesRepository rightsRolesRepository;
     private final AccountRepository accountRepository;
+    private final ActivityRepository activityRepository;
 
     private final AuthenticationService authenticationService;
     private final UserService userService;
     private final AccountService accountService;
     private final RightsRolesService rightsRolesService;
+    private final ActivityService activityService;
 
     private static ContainerFactory instance;
     private final SessionManager sessionManager;
@@ -60,19 +66,21 @@ public class ContainerFactory {
         this.rightsRolesRepository = new RightsRolesRepositoryMySQL(connection);
         this.userRepository= new UserRepositoryMySQL(connection, this.rightsRolesRepository);
         this.accountRepository = new AccountRepositoryMySQL(connection);
+        this.activityRepository = new ActivityRepositoryMySQL(connection);
         this.authenticationService = new AuthenticationServiceMySQL(this.userRepository);
-        this.userService = new UserServiceImpl(this.userRepository, this.rightsRolesRepository);
+        this.userService = new UserServiceImpl(this.userRepository);
         this.rightsRolesService = new RightsRolesServiceImpl(this.rightsRolesRepository);
+        this.activityService = new ActivityServiceImpl(this.activityRepository);
         this.mainView = new MainView();
         this.adminView = new AdminView();
         this.employeeView = new EmployeeView();
         this.sessionManager =  new SessionManager();
-        this.accountService = new AccountServiceImpl(this.accountRepository, this.userRepository);
+        this.accountService = new AccountServiceImpl(this.accountRepository);
         this.mainController = new MainController(this.sessionManager, this.mainView, this.adminView, this.employeeView, this.authenticationService, rightsRolesService);
         mainController.start();
         this.adminController = new AdminController(this.sessionManager, this.mainView, this.adminView, this.authenticationService, this.userService, rightsRolesService);
         adminController.start();
-        this.employeeController = new EmployeeController(this.sessionManager, this.mainView, this.employeeView, this.authenticationService, this.userService, this.accountService, rightsRolesService);
+        this.employeeController = new EmployeeController(this.sessionManager, this.mainView, this.employeeView, this.authenticationService, this.userService, this.accountService, rightsRolesService, activityService);
         employeeController.start();
 
     }

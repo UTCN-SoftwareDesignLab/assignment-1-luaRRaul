@@ -19,13 +19,8 @@ public class AdminView extends ConsoleView {
         System.out.print("Option:");
     }
 
-    public int getEmployeeNumber() {
-        System.out.print("\nemployee number: ");
-        return Integer.parseInt(sc.nextLine());
-    }
-
     public int getOption() {
-        return sc.nextInt();
+        return Integer.parseInt(sc.nextLine());
     }
 
     public UserDTO getSelectedUser(List<UserDTO> employees) {
@@ -52,7 +47,6 @@ public class AdminView extends ConsoleView {
     }
 
     public UserDTO getUserDTO() {
-        sc.nextLine();
         System.out.print("\nusername: ");
         String username = sc.nextLine();
         System.out.print("\npassword: ");

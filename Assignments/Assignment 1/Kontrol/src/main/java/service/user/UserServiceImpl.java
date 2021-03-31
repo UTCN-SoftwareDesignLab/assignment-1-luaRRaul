@@ -3,24 +3,20 @@ package service.user;
 import dto.UserDTO;
 import dto.builder.UserDTOBuilder;
 import model.User;
+import model.builder.UserBuilder;
 import model.validation.Notification;
-import repository.security.RightsRolesRepository;
+import model.validation.Validator;
 import repository.user.UserRepository;
 
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import static database.Constants.Tables.USER;
 
 public class UserServiceImpl implements UserService{
     private final UserRepository userRepository;
-    private final RightsRolesRepository rightsRolesRepository;
 
-    public UserServiceImpl(UserRepository repository, RightsRolesRepository rightsRolesRepository){
+    public UserServiceImpl(UserRepository repository){
         this.userRepository=repository;
-        this.rightsRolesRepository=rightsRolesRepository;
     }
 
     @Override
@@ -42,12 +38,21 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User findById(long id) {
-        return null;
+    public Notification<Boolean> changeUserUsername(UserDTO userDTO, String newUsername) {
+        Notification<Boolean> changeUsernameNotification = new Notification<>();
+        User user = new UserBuilder().setUsername(userDTO.getUsername()).build();
+        Validator v = new Validator();
+        if(v.usernameIsValid(newUsername)){
+            return userRepository.changeUsername(user, newUsername);
+        }
+        changeUsernameNotification.setResult(false);
+        changeUsernameNotification.addError("Invalid username");
+        return changeUsernameNotification;
     }
 
     @Override
-    public boolean changeEmployeePassword(String password) {
-        return false;
+    public Notification<Boolean> delete(UserDTO user) {
+        return userRepository.deleteByUsername(user.getUsername());
     }
+
 }

@@ -44,11 +44,48 @@ public class AccountRepositoryMySQL implements AccountRepository {
     }
 
     @Override
-    public boolean save(Account account, long user_id) {
+    public boolean deleteAccount(Account account) {
+        try {
+            Statement statement = connection.createStatement();
+            String deleteAccount = "DELETE from `" + ACCOUNT + "` where `id`=\'" + account.getId() + "\'";
+            statement.executeUpdate(deleteAccount);
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public Account findByIban(String iban) {
+        Statement statement;
+        try {
+            statement = connection.createStatement();
+            String fetchRoleSql = "Select * from " + ACCOUNT + " where `iban`=\'" + iban + "\'";
+            ResultSet roleResultSet = statement.executeQuery(fetchRoleSql);
+            if (roleResultSet.next()){
+                Account account=new AccountBuilder()
+                        .setId(roleResultSet.getLong("id"))
+                        .setUserId(roleResultSet.getLong("user_id"))
+                        .setIban(roleResultSet.getString("iban"))
+                        .setSold(roleResultSet.getString("sold"))
+                        .setCurrency(roleResultSet.getString("currency"))
+                        .build();
+                return account;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    @Override
+    public boolean save(Account account) {
         try {
             PreparedStatement insertAccountStatement = connection
                     .prepareStatement("INSERT INTO "+ACCOUNT+" values (null, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
-            insertAccountStatement.setLong(1, user_id);
+            insertAccountStatement.setLong(1, account.getUser_id());
             insertAccountStatement.setString(2, account.getSold());
             insertAccountStatement.setString(3, account.getIban());
             insertAccountStatement.setString(4, account.getCurrency());

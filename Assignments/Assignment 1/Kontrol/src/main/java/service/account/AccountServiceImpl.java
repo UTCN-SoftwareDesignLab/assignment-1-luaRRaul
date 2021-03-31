@@ -1,31 +1,31 @@
 package service.account;
 
+import dto.AccountDTO;
 import dto.UserDTO;
+import dto.builder.AccountDTOBuilder;
 import model.Account;
-import model.User;
 import model.builder.AccountBuilder;
 import model.validation.AccountValidator;
 import model.validation.Notification;
+import model.validation.Validator;
 import repository.account.AccountRepository;
-import repository.user.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AccountServiceImpl implements AccountService{
     private final AccountRepository accountRepository;
-    private final UserRepository userRepository;
 
-    public AccountServiceImpl(AccountRepository accountRepository, UserRepository userRepository) {
+    public AccountServiceImpl(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
-        this.userRepository = userRepository;
     }
 
     @Override
-    public Notification<Boolean> createAccount(String iban, String currency, UserDTO user) {
+    public Notification<Boolean> createAccount(AccountDTO accountDTO) {
         Account account = new AccountBuilder()
-                .setUserId(user.getId())
-                .setIban(iban)
-                .setCurrency(currency)
+                .setUserId(accountDTO.getUser_id())
+                .setIban(accountDTO.getIban())
+                .setCurrency(accountDTO.getCurrency())
                 .setSold("0")
                 .build();
         AccountValidator accountValidator = new AccountValidator(account);
@@ -35,25 +35,38 @@ public class AccountServiceImpl implements AccountService{
             accountValidator.getErrors().forEach(accountCreationNotification::addError);
             accountCreationNotification.setResult(Boolean.FALSE);
         }else{
-            accountCreationNotification.setResult(accountRepository.save(account, user.getId()));
+            accountCreationNotification.setResult(accountRepository.save(account));
         }
         return accountCreationNotification;
     }
 
     @Override
-    public List<Account> findAccountsForUser(UserDTO user) {
-        return accountRepository.findByUserId(user.getId());
+    public List<AccountDTO> findAccountsForUser(UserDTO user) {
+        List<AccountDTO> accountsDTO = new ArrayList<>();
+        for (Account acc : accountRepository.findByUserId(user.getId())){
+            accountsDTO.add(new AccountDTOBuilder().setUserId(acc.getUser_id()).setIban(acc.getIban()).setCurrency(acc.getCurrency()).setSold(acc.getSold()).build());
+        }
+        return accountsDTO;
     }
 
     @Override
-    public Notification<Boolean> sendMoney(Account sender, Account receiver, String ammount) {
+    public Notification<Boolean> transferMoney(AccountDTO senderDTO, AccountDTO receiverDTO, String amount) {
         Notification<Boolean> sendMoneyNotif = new Notification<>();
+        Account sender = new AccountBuilder().setCurrency(senderDTO.getCurrency())
+                .setUserId(senderDTO.getUser_id())
+                .setIban(senderDTO.getIban())
+                .build();
+        Account receiver = new AccountBuilder().setCurrency(receiverDTO.getCurrency())
+                .setUserId(receiverDTO.getUser_id())
+                .setIban(receiverDTO.getIban())
+                .build();
         AccountValidator accountValidator = new AccountValidator(sender);
-        boolean validBalance = accountValidator.validateBalance(ammount);
-        boolean validNewBalance = accountValidator.validateBalance(String.valueOf(Integer.parseInt(sender.getSold())-Integer.parseInt(ammount)));
+        Validator validator = new Validator();
+        boolean validBalance = validator.validateBalance(amount);
+        boolean validNewBalance = validator.validateBalance(String.valueOf(Integer.parseInt(sender.getSold())-Integer.parseInt(amount)));
         if(validBalance & validNewBalance) {
-            sendMoneyNotif.setResult(accountRepository.updateBalance(sender, String.valueOf(Integer.parseInt(sender.getSold())-Integer.parseInt(ammount))));
-            sendMoneyNotif.setResult(accountRepository.updateBalance(receiver, String.valueOf(Integer.parseInt(sender.getSold())+Integer.parseInt(ammount))));
+            sendMoneyNotif.setResult(accountRepository.updateBalance(sender, String.valueOf(Integer.parseInt(sender.getSold())-Integer.parseInt(amount))));
+            sendMoneyNotif.setResult(accountRepository.updateBalance(receiver, String.valueOf(Integer.parseInt(sender.getSold())+Integer.parseInt(amount))));
         }else {
             accountValidator.getErrors().forEach(sendMoneyNotif::addError);
             sendMoneyNotif.setResult(Boolean.FALSE);
@@ -63,10 +76,23 @@ public class AccountServiceImpl implements AccountService{
     }
 
     @Override
-    public Notification<Boolean> updateBalance(Account account, String balance) {
+    public Notification<Boolean> deleteAccount(AccountDTO accountDTO) {
+        Notification<Boolean> deleteAccountNotif = new Notification<>();
+        Account account = accountRepository.findByIban(accountDTO.getIban());
+        deleteAccountNotif.setResult(accountRepository.deleteAccount(account));
+        return deleteAccountNotif;
+    }
+
+    @Override
+    public Notification<Boolean> updateBalance(AccountDTO accountDTO, String balance) {
         Notification<Boolean> updateBalanceNotif = new Notification<>();
+        Account account = new AccountBuilder().setCurrency(accountDTO.getCurrency())
+                .setUserId(accountDTO.getUser_id())
+                .setIban(accountDTO.getIban())
+                .build();
         AccountValidator accountValidator = new AccountValidator(account);
-        boolean validBalance = accountValidator.validateBalance(balance);
+        Validator validator = new Validator();
+        boolean validBalance = validator.validateBalance(balance);
         if(validBalance) {
             updateBalanceNotif.setResult(accountRepository.updateBalance(account, balance));
         }else {

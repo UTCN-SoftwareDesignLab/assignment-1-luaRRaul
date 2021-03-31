@@ -14,7 +14,6 @@ public class MainView extends ConsoleView{
     }
 
     public String getUsername() {
-        sc.nextLine();
         System.out.print("\nusername: ");
         return sc.nextLine();
     }
@@ -25,7 +24,6 @@ public class MainView extends ConsoleView{
     }
 
     public UserDTO getUserDTO(){
-        sc.nextLine();
         System.out.print("\nusername: ");
         String username = sc.nextLine();
         System.out.print("\npassword: ");
@@ -37,7 +35,7 @@ public class MainView extends ConsoleView{
     }
 
     public int getOption(){
-        return sc.nextInt();
+        return Integer.parseInt(sc.nextLine());
     }
 
     public void printMessage(String message){
