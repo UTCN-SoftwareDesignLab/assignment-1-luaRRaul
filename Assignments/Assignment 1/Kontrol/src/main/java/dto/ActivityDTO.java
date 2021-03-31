@@ -7,6 +7,34 @@ public class ActivityDTO {
     private long user_id;
     private long right_id;
     private long client_id;
+    private String username;
+    private String rightName;
+    private String clientUsername;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getRightName() {
+        return rightName;
+    }
+
+    public void setRightName(String rightName) {
+        this.rightName = rightName;
+    }
+
+    public String getClientUsername() {
+        return clientUsername;
+    }
+
+    public void setClientUsername(String clientUsername) {
+        this.clientUsername = clientUsername;
+    }
+
     private Date execution_date;
 
     public long getId() {
@@ -43,6 +71,16 @@ public class ActivityDTO {
 
     public Date getExecution_date() {
         return execution_date;
+    }
+
+    @Override
+    public String toString() {
+        return "ActivityDTO{" +
+                "username='" + username + '\'' +
+                ", rightName='" + rightName + '\'' +
+                ", clientUsername='" + clientUsername + '\'' +
+                ", execution_date=" + execution_date +
+                '}';
     }
 
     public void setExecution_date(Date execution_date) {

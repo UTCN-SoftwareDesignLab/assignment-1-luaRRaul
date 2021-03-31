@@ -36,6 +36,21 @@ public class ActivityDTOBuilder {
         return this;
     }
 
+    public ActivityDTOBuilder setUsername(String username){
+        activity.setUsername(username);
+        return this;
+    }
+
+    public ActivityDTOBuilder setRightName(String rightName){
+        activity.setRightName(rightName);
+        return this;
+    }
+
+    public ActivityDTOBuilder setClientUsername(String clientUsername){
+        activity.setClientUsername(clientUsername);
+        return this;
+    }
+
     public ActivityDTO build(){
         return activity;
     }

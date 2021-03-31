@@ -1,5 +1,6 @@
 package repository.user;
 
+import dto.ActivityDTO;
 import dto.UserDTO;
 import model.User;
 import model.validation.Notification;
@@ -21,4 +22,6 @@ public interface UserRepository {
     Notification<Boolean> changeUsername(User user, String newUsername);
 
     Notification<Boolean> deleteByUsername(String username);
+
+    Notification<User> findUserById(long user_id);
 }

@@ -79,7 +79,7 @@ public class UserRepositoryMySQL implements UserRepository {
         Notification<Boolean> deleteUserNotif = new Notification<>();
         try {
             Statement statement = connection.createStatement();
-            String deleteEmployeeSQL = "DELETE from `" + EMPLOYEE + "` where `username`='" + username +
+            String deleteEmployeeSQL = "DELETE from `" + USER + "` where `username`='" + username +
                     "'";
             statement.executeUpdate(deleteEmployeeSQL);
             deleteUserNotif.setResult(true);
@@ -89,6 +89,35 @@ public class UserRepositoryMySQL implements UserRepository {
             deleteUserNotif.setResult(false);
         }
         return deleteUserNotif;
+    }
+
+    @Override
+    public Notification<User> findUserById(long user_id) {
+        Notification<User> selectUserNotif = new Notification<>();
+        try {
+            Statement statement = connection.createStatement();
+            String selectUserSQL = "SELECT * from `" + USER + "` where `id`='" + user_id + "'";
+            ResultSet userResultSet = statement.executeQuery(selectUserSQL);
+            if(userResultSet.next()) {
+                User user = new UserBuilder()
+                        .setId(userResultSet.getLong("id"))
+                        .setUsername(userResultSet.getString("username"))
+                        .setPassword(userResultSet.getString("password"))
+                        .setRoles(rightsRolesRepository.findRolesForUser(userResultSet.getLong("id")))
+                        .build();
+
+                selectUserNotif.setResult(user);
+                return selectUserNotif;
+            }else {
+                selectUserNotif.addError("User not in Database");
+                return selectUserNotif;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            selectUserNotif.addError("Something is wrong with the Database");
+        }
+        return selectUserNotif;
+
     }
 
     @Override

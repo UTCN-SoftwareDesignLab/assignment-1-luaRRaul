@@ -61,6 +61,14 @@ public class ContainerFactory {
        return instance; 
     }
 
+    public ActivityRepository getActivityRepository() {
+        return activityRepository;
+    }
+
+    public ActivityService getActivityService() {
+        return activityService;
+    }
+
     public ContainerFactory(Boolean componentsForTest) {
         Connection connection = new DBConnectionFactory().getConnectionWrapper(componentsForTest).getConnection();
         this.rightsRolesRepository = new RightsRolesRepositoryMySQL(connection);
@@ -70,7 +78,7 @@ public class ContainerFactory {
         this.authenticationService = new AuthenticationServiceMySQL(this.userRepository);
         this.userService = new UserServiceImpl(this.userRepository);
         this.rightsRolesService = new RightsRolesServiceImpl(this.rightsRolesRepository);
-        this.activityService = new ActivityServiceImpl(this.activityRepository);
+        this.activityService = new ActivityServiceImpl(this.activityRepository, rightsRolesRepository, userRepository);
         this.mainView = new MainView();
         this.adminView = new AdminView();
         this.employeeView = new EmployeeView();
@@ -78,7 +86,7 @@ public class ContainerFactory {
         this.accountService = new AccountServiceImpl(this.accountRepository);
         this.mainController = new MainController(this.sessionManager, this.mainView, this.adminView, this.employeeView, this.authenticationService, rightsRolesService);
         mainController.start();
-        this.adminController = new AdminController(this.sessionManager, this.mainView, this.adminView, this.authenticationService, this.userService, rightsRolesService);
+        this.adminController = new AdminController(this.sessionManager, this.mainView, this.adminView, this.authenticationService, this.userService, rightsRolesService, activityService);
         adminController.start();
         this.employeeController = new EmployeeController(this.sessionManager, this.mainView, this.employeeView, this.authenticationService, this.userService, this.accountService, rightsRolesService, activityService);
         employeeController.start();

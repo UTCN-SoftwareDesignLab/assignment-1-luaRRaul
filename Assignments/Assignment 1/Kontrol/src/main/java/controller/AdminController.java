@@ -3,8 +3,8 @@ package controller;
 import dto.UserDTO;
 import dto.builder.UserDTOBuilder;
 import model.SessionManager;
-import model.User;
 import model.validation.Notification;
+import service.activity.ActivityService;
 import service.rightsRoles.RightsRolesService;
 import service.user.AuthenticationService;
 import service.user.UserService;
@@ -12,6 +12,7 @@ import view.AdminView;
 import view.MainView;
 
 import java.util.Collections;
+import java.util.Date;
 
 import static database.Constants.Roles.EMPLOYEE;
 
@@ -22,14 +23,16 @@ public class AdminController extends Thread{
     private final AuthenticationService authenticationService;
     private final UserService userService;
     private final RightsRolesService rightsRolesService;
+    private final ActivityService activityService;
 
-    public AdminController(SessionManager sessionManager, MainView mainView, AdminView adminView, AuthenticationService authenticationService, UserService userService, RightsRolesService rightsRolesService) {
+    public AdminController(SessionManager sessionManager, MainView mainView, AdminView adminView, AuthenticationService authenticationService, UserService userService, RightsRolesService rightsRolesService, ActivityService activityService) {
         this.sessionManager = sessionManager;
         this.mainView = mainView;
         this.adminView = adminView;
         this.authenticationService = authenticationService;
         this.userService = userService;
         this.rightsRolesService = rightsRolesService;
+        this.activityService = activityService;
     }
     @Override
     public void run() {
@@ -63,7 +66,14 @@ public class AdminController extends Thread{
                 case 4:
                     updateEmployeeInfo(selectUser());
                     break;
+                case 5:
+                    generateReport(selectUser(), adminView.getStartDate(), adminView.getEndDate());
+                    break;
         }
+    }
+
+    private void generateReport(UserDTO selectUser, Date startDate, Date endDate) {
+        adminView.printReport(activityService.getReport(selectUser,startDate,endDate));
     }
 
     private void registerEmployee(UserDTO userDTO) {

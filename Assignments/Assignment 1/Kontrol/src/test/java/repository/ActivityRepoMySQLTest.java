@@ -3,21 +3,21 @@ package repository;
 import launcher.ContainerFactory;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
-import repository.user.UserRepository;
+import repository.activity.ActivityRepository;
 
-public class UserRepositoryMySQLTest {
-    private static UserRepository userRepository;
+public class ActivityRepoMySQLTest {
+    private static ActivityRepository activityRepository;
 
     @BeforeClass
     public static void setupClass() {
         ContainerFactory containerFactory = ContainerFactory.instance(true);
 
-        userRepository = containerFactory.getUserRepositoryMySQL();
+        activityRepository = containerFactory.getActivityRepository();
     }
 
     @Before
     public void cleanUp() {
-        userRepository.removeAll();
+        activityRepository.removeAll();
     }
+
 }

@@ -4,6 +4,7 @@ import model.Right;
 import model.Role;
 import model.User;
 
+import javax.swing.*;
 import java.util.List;
 
 /**
@@ -27,4 +28,5 @@ public interface RightsRolesRepository {
 
     void addRoleRight(Long roleId, Long rightId);
 
+    Right findRightById(Long rightId);
 }
