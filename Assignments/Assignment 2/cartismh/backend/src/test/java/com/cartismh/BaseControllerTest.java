@@ -10,8 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 public abstract class BaseControllerTest {
@@ -40,7 +39,34 @@ public abstract class BaseControllerTest {
                 .accept(MediaType.APPLICATION_JSON));
     }
 
+    protected ResultActions performPutWithRequestBodyAndPathVariable(String path, Object body, Object pathVariable) throws Exception {
+        return mockMvc.perform(put(path, pathVariable)
+                .content(asJsonString(body))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+    }
+
+    protected ResultActions performPatchWithRequestBodyAndPathVariable(String path, Object body, Object pathVariable) throws Exception {
+        return mockMvc.perform(patch(path, pathVariable)
+                .content(asJsonString(body))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+    }
+
+    protected ResultActions performGetWithPathVariable(String path, Object pathVariable) throws Exception {
+        return mockMvc.perform(get(path, pathVariable)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+    }
+
+    protected ResultActions performDeleteWithPathVariable(String path, Object pathVariable) throws Exception {
+        return mockMvc.perform(delete(path, pathVariable)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+    }
+
     protected String asJsonString(final Object obj) {
+        if (obj instanceof String) return obj.toString();
         try {
             ObjectMapper mapper = new ObjectMapper();
             mapper.registerModule(new JavaTimeModule());
