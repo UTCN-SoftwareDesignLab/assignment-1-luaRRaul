@@ -64,4 +64,15 @@ public class BookService {
     public void delete(Long id) {
         bookRepository.deleteById(id);
     }
+
+    public boolean sell(Long id) {
+        Book actBook = findById(id);
+        int quantity = actBook.getQuantity();
+        if( quantity>=1 ) {
+            actBook.setQuantity(quantity - 1);
+            bookRepository.save(actBook);
+            return true;
+        }else
+            return false;
+    }
 }

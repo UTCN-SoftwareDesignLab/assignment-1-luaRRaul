@@ -1,6 +1,6 @@
 package com.cartismh.security;
 
-import com.cartismh.user.UserDetailsImpl;
+import com.cartismh.user.dto.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;

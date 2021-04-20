@@ -3,6 +3,7 @@ package com.cartismh.book;
 import com.cartismh.BaseControllerTest;
 import com.cartismh.TestCreationFactory;
 import com.cartismh.book.dto.BookDTO;
+import com.cartismh.report.ReportServiceFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -28,11 +29,14 @@ class BookControllerTest extends BaseControllerTest {
     @Mock
     private BookService bookService;
 
+    @Mock
+    private ReportServiceFactory reportServiceFactory;
+
     @BeforeEach
     protected void setUp() {
         super.setUp();
 //        MockitoAnnotations.openMocks(this);
-        controller = new BookController(bookService);
+        controller = new BookController(bookService, reportServiceFactory);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 

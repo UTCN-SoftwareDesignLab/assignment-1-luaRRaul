@@ -1,11 +1,10 @@
 package com.cartismh.security;
 
-import com.cartismh.UrlMapping;
 import com.cartismh.security.dto.JwtResponse;
 import com.cartismh.security.dto.LoginRequest;
 import com.cartismh.security.dto.MessageResponse;
 import com.cartismh.security.dto.SignupRequest;
-import com.cartismh.user.UserDetailsImpl;
+import com.cartismh.user.dto.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,9 +18,11 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.cartismh.UrlMapping.*;
+
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping(UrlMapping.AUTH)
+@RequestMapping(AUTH)
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -29,7 +30,7 @@ public class AuthController {
     private final AuthService authService;
     private final JwtUtils jwtUtils;
 
-    @PostMapping(UrlMapping.SIGN_IN)
+    @PostMapping(SIGN_IN)
     public ResponseEntity<JwtResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
@@ -54,7 +55,7 @@ public class AuthController {
         );
     }
 
-    @PostMapping(UrlMapping.SIGN_UP)
+    @PostMapping(SIGN_UP)
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         if (authService.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity

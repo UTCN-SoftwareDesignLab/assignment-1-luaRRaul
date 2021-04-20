@@ -1,5 +1,6 @@
 package com.cartismh.user;
 
+import com.cartismh.user.dto.UserDetailsImpl;
 import com.cartismh.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

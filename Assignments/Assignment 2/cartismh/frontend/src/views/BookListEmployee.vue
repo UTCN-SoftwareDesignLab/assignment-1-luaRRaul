@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <v-card-title>
-      Items
+      Book Sales
       <v-spacer></v-spacer>
       <v-text-field
         v-model="search"
@@ -10,58 +10,57 @@
         single-line
         hide-details
       ></v-text-field>
-      <v-btn @click="addItem">Add Item</v-btn>
     </v-card-title>
     <v-data-table
       :headers="headers"
-      :items="items"
+      :items="books"
       :search="search"
-      @click:row="editItem"
+      @click:row="editBook"
     ></v-data-table>
-    <ItemDialog
+    <BookDialogEmployee
       :opened="dialogVisible"
-      :item="selectedItem"
+      :book="selectedBook"
       @refresh="refreshList"
-    ></ItemDialog>
+    ></BookDialogEmployee>
   </v-card>
 </template>
 
 <script>
 import api from "../api";
-import ItemDialog from "../components/ItemDialog";
+import BookDialogEmployee from "@/components/BookDialogEmployee";
 
 export default {
-  name: "ItemList",
-  components: { ItemDialog },
+  name: "BookListEmployee",
+  components: { BookDialogEmployee },
   data() {
     return {
-      items: [],
+      books: [],
       search: "",
       headers: [
         {
-          text: "Name",
+          text: "Title",
           align: "start",
           sortable: false,
-          value: "name",
+          value: "title",
         },
-        { text: "Description", value: "description" },
+        { text: "Author", value: "author" },
+        { text: "Genre", value: "genre" },
+        { text: "Quantity", value: "quantity" },
+        { text: "Price", value: "price" },
       ],
       dialogVisible: false,
-      selectedItem: {},
+      selectedBook: {},
     };
   },
   methods: {
-    editItem(item) {
-      this.selectedItem = item;
-      this.dialogVisible = true;
-    },
-    addItem() {
+    editBook(book) {
+      this.selectedBook = book;
       this.dialogVisible = true;
     },
     async refreshList() {
       this.dialogVisible = false;
-      this.selectedItem = {};
-      this.items = await api.items.allItems();
+      this.selectedBook = {};
+      this.books = await api.books.allBooks();
     },
   },
   created() {
